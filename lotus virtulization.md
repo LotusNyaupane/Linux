@@ -268,43 +268,86 @@ While performing this operation following result was generates
 
 # Part 5: Snaps for Self-Contained Application
 
-some commands that i had performed to carryout this operation are
-```
-  sudo apt update && sudo apt install snapcraft -y
-```
-![alt text](<Screenshot 2025-02-23 174739-2.png>)
+ ### Some concept on snap and snapcraft
 
+ 1. Defination of snapcraft?
+ - Snapcraft is a tool for building, packaging, and publishing software as Snaps. It allows applications to run on different Linux distributions without modification.
+
+ 2. What are Snaps?
+ - Snaps are self-contained application packages that include all dependencies. They ensure software runs consistently across various Linux distributions.
+
+ 3. Some  Features of Snaps:
+ - Dependency Management: Snaps bundle all required libraries.
+ - Automatic Updates: Snaps update automatically in the background. -Security & Sandboxing: Snaps run in isolation, improving security.
+ - Cross-Distribution Support: Work on Ubuntu, Debian, Fedora, Arch, and more.
+
+----------
+### Problem that i had faced during performing these operation on Snaps
+
+- Summary: I had performed lot of mistake while doing these command so writing each and every command with the output will make more difficult to gained the information however here is the problem and the difficulties i had faced during performing these step i had attached my picture  of the output
+![alt text](<Screenshot 2025-02-23 154145-1.png>) ![alt text](<Screenshot 2025-02-23 153019-1.png>) ![alt text](<Screenshot 2025-02-23 153747-1.png>) ![alt text](<Screenshot 2025-02-23 153829-1.png>)
+
+-----
+## Experiment
+Step 1: Install Snapcraft
 ```
-sudo snap install snapcraft --classic
+  sudo snap install snapcraft --classic
 ```
+#### since snapcraft is already install i had see the verison of the snapcraft
+```
+snapcraft --version
+```
+
+![alt text](<Screenshot 2025-02-23 195035-1.png>)
+
+![alt text](<Screenshot 2025-02-23 174739-3.png>)
+
+Step 2 : Create a Snap Project
 ```
  mkdir my-snap-app && cd my-snap-app
+            snapcraft init
 ```
+Output:
 ```
- snapcraft init
+            Go to https://docs.snapcraft.io/the-snapcraft-format/8337 for more information about the snapcraft.yaml format.
+            Successfully initialised project.
+```            
+
+Step 3: Create the Application Script
 ```
-```
-  mkdir bin
-```
-```
-nano bin/hello.sh
-```
-```
- nano bin/hello.sh
-```
-```
-chmod +x bin/hello.sh
-```
-```
-snapcraft
-```
-```
- sudo snap install my-snap-app_0.1_amd64.snap --dangerous
-```
-```
- my-snap-app.hello
-```
-```
- snap list | grep my-snap-app
+            mkdir bin
+            nano bin/hello.sh
 ```
 
+Added the following content inside hello.sh:
+```
+            #!/bin/bash
+            echo "Hello from my snap!"
+```
+Save and exit. Then, make it executable:
+```
+            chmod +x bin/hello.sh
+```
+Step 4: Modify snapcraft.yaml
+
+Open the configuration file:
+```
+            nano snap/snapcraft.yaml
+```
+![alt text](<Screenshot 2025-02-23 200809-1.png>)
+
+
+Step 5: Build the Snap
+```
+            snapcraft
+```
+Step 6: Install and Run the Snap
+Install it using:
+```
+            sudo snap install my-snap-app_*.snap --devmode
+```
+Output:
+```
+            Hello from my snap!
+```
+![alt text](<Screenshot 2025-02-23 175821-1.png>)
