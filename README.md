@@ -293,13 +293,147 @@ sudo apt-mark unhold gimp
 - **holding a package saves it from being atomatically updates which is extremely important for making sure of stability or compativility while using other diffrent software.**
 ![alt text](<lotus last.png>)
 
+# Assisgnment 8- Firewall 
+
+1. Introducing this report details the firewall setup for protecting a server by permetting essential services and also preventing the unauthorized acess and also reducing the typical network threats .The Firewall regulations aare intented to 
+
+- Allow essestial services(OpenSSH,HTTP and HTTPS)
+- Log blocked and allowed connections for monotoring
 
 
 
+### Install iptables and iptables-persistent
+```
+sudo apt update
+sudo apt install iptables iptables-persistent
+```
+Purpose: To Install the necessary tools (iptables for firewall configuration and iptables-persistent to save rules across reboots).
+
+#### Step 2: Define Default Firewall Policies 
+
+```
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+```
+
+* Why Defined:
+ INPUT DROP: Blocks all incoming traffic by default. Only explicitly allowed traffic will be accepted.
+
+FORWARD DROP: Blocks all forwarded traffic (useful if the server is not acting as a router).
+
+OUTPUT ACCEPT: Allows all outgoing traffic from the server.
+
+ * Purpose:
+Ensures the server is secure by default, blocking all unauthorized traffic.
+
+### Step 3: Allow Loopback Traffic
+```
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A OUTPUT -o lo -j ACCEPT
+```
+### Step 4: Allow Established and Related Connections
+
+```
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+```
+- As it Allows traffic for already established connections and related traffic.
+
+- purpose: Ensures that legitimate traffic is not blocked while maintaining security.
 
 
+### Step 5: Allow OpenSSH (Port 22)
+```
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+```
+#### Step 6: Allow HTTP (Port 80) and HTTPS (Port 443)
+```
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+```
+### Step 7: Log Blocked Traffic
+```
+iptables -A INPUT -j LOG --log-prefix "Blocked Traffic: "
+```
+- Why Defined:
+Logs all incoming traffic that is blocked by the firewall.
 
+- Purpose:
+Helps in monitoring and troubleshooting blocked traffic.
 
+### Step 8: Log Allowed Traffic
+```
+iptables -A INPUT -j LOG --log-prefix "Allowed Traffic: "
+```
+
+- Why Defined:
+Logs all incoming traffic that is allowed by the firewall.
+
+- Purpose:
+Provides visibility into legitimate traffic for auditing and analysis.
+
+#### Step 9: Mitigate SYN Flood Attacks
+```
+iptables -A INPUT -p tcp --syn -m limit --limit 1/s --limit-burst 3 -j ACCEPT
+iptables -A INPUT -p tcp --syn -j DROP
+```
+- Why Defined:
+Limits the rate of SYN packets (used to initiate TCP connections) to 1 per second, with a burst limit of 3.
+
+Drops any additional SYN packets beyond this limit.
+
+- Purpose:
+Protects the server from SYN flood attacks, which can overwhelm the server with connection requests.
+
+#### Step 10: Prevent ICMP Flood (Ping Flood)
+```
+iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+```
+- Why Defined:
+Limits the rate of ICMP echo requests (ping requests) to 1 per second.
+
+Drops any additional ping requests beyond this limit.
+
+- Purpose:
+Protects the server from ICMP flood attacks, which can overwhelm the server with ping requests.
+
+#### Step 11: Save Rules and Make Them Persistent
+```
+iptables-save > /etc/iptables/rules.v4
+```
+- Why Defined:
+Saves the current iptables rules to a file (/etc/iptables/rules.v4).
+
+- Purpose:
+Ensures that the firewall rules are loaded automatically at startup
+#### Step 12: Verify the Rules
+
+```
+sudo iptables -L -v -n
+```
+- Why Defined:
+Lists all iptables rules with packet/byte counts.
+
+- Purpose:
+Verifies that the rules have been applied correctly.
+
+#### Step 13: Monitor Logs
+```
+sudo tail -f /var/log/syslog | grep -E "Blocked Traffic: | Allowed Traffic: "
+```
+- Why Defined:
+Monitors logs for blocked and allowed traffic.
+
+- Purpose:
+Ensures that the logging rules are working as intended.
+
+#### Step 14: Test the Configuration
+```
+ping 192.168.1.100
+```
+Resutls:
+![alt text](<Screenshot 2025-03-05 221412.png>) ![alt text](<Screenshot 2025-03-05 221419.png>)
 
 
 
